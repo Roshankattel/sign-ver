@@ -16,6 +16,10 @@ import base64
 import glob
 import model_loader
 from fastapi.middleware.cors import CORSMiddleware
+import urllib.request
+import os
+import string
+import random
 
 INPUT_FILE = "./images/input_files/"
 EXTRACT_SIGN = "./images/extracted_signatures/"
@@ -42,6 +46,41 @@ def img_to_base64(imageFullPath):
 def save_image(image_path,image):
     with open(image_path,"wb") as buffer:
         shutil.copyfileobj(image,buffer)
+
+def download_file(path: str, file_url: str, file_name: str):
+    opener = urllib.request.build_opener()
+    opener.addheaders = [
+        ('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')
+    ]
+    urllib.request.install_opener(opener)
+    file_path = os.path.join(path, file_name)
+    print(file_path)
+    try:
+        urllib.request.urlretrieve(file_url, file_path)
+    except Exception as exp:
+        raise HTTPException(status_code=400, detail=str(exp))
+    else:
+        return True
+
+def make_token(n=6):
+    choices = f'{string.ascii_uppercase}{string.ascii_lowercase}'
+    return ''.join(random.choices(choices, k=n))
+
+def get_filename(path, file_name='') -> str:
+    file = file_name.split('.')
+
+    while True:
+        token = make_token()
+        if file_name != '':
+            name = f'{file[0]}_{token}'
+            if len(file) >= 1:
+                name = f'{name}.{file[len(file)-1]}'
+        else:
+            name = token
+        if not os.path.exists(path + name):
+            break
+    return str(path + name)
+
 
 
 @app.post("/extractor",response_model = schemas.extractor_response,status_code=200,tags=['Offline Signature Authentication'])
