@@ -11,8 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import cv2
 from PIL import Image
-
-
+import streamlit as st
 from signver.detector import Detector
 from signver.cleaner import Cleaner
 from signver.extractor import MetricExtractor
@@ -87,28 +86,28 @@ def extractSign(img_name,clean):
     return (score)
 
 def compare(imagea,imageb,clean):
-    sim =False
-    img_paths =[imagea, imageb]
-    [removeBg(img_path) for img_path in img_paths]
-    inverted_image_np = [data_utils.img_to_np_array(x, invert_image=True) for x in img_paths]
-    sigs= [ resnet_preprocess( x, resnet=False ) for x in inverted_image_np ]
-    if(clean):
-        norm_sigs = [ x * (1./255) for x in sigs]
-        cleaned_sigs = cleaner.clean(np.array(norm_sigs))
-        feats = extractor.extract(cleaned_sigs ) 
-    else:
-        feats = extractor.extract(np.array(sigs) / 255)
-    matcher = Matcher()
-    distance =matcher.cosine_distance(feats[0],feats[1])
-    print(distance)
-    similarity = round((1- distance),4)
-    if(similarity>1):
-        similarity = 1
-    elif similarity<0:
-        similarity=0
-    if (distance<0.3):
-        sim = True
-    return(sim,(similarity)*100)
+        sim =False
+        img_paths =[imagea, imageb]
+        [removeBg(img_path) for img_path in img_paths]
+        inverted_image_np = [data_utils.img_to_np_array(x, invert_image=True) for x in img_paths]
+        sigs= [ resnet_preprocess( x, resnet=False ) for x in inverted_image_np ]
+        if(clean):
+            norm_sigs = [ x * (1./255) for x in sigs]
+            cleaned_sigs = cleaner.clean(np.array(norm_sigs))
+            feats = extractor.extract(cleaned_sigs ) 
+        else:
+            feats = extractor.extract(np.array(sigs) / 255)
+        matcher = Matcher()
+        distance =matcher.cosine_distance(feats[0],feats[1])
+        print(distance)
+        similarity = round((1- distance),4)
+        if(similarity>1):
+            similarity = 1
+        elif similarity<0:
+            similarity=0
+        if (distance<0.3):
+            sim = True
+        return(sim,(similarity)*100)
     
     
 

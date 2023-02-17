@@ -60,7 +60,7 @@ def download_file(path: str, file_url: str, file_name: str):
     try:
         urllib.request.urlretrieve(file_url, file_path)
     except Exception as exp:
-        return st.error("Invalid Image URL.")
+        st.error("Invalid Image URL.")
     
         # raise HTTPException(status_code=400, detail="Invalid Image URL.")
         

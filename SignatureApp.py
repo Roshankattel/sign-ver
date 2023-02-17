@@ -73,21 +73,24 @@ if choice == "Compare":
         urlSign = st.text_input("Signature Image url")
         filename = main.get_filename(DOWNLOAD_IMAGE, "signUrl.png")
         if image:
-            col1, col2 = st.columns([0.5, 0.5])
-            if st.button("Compare"):
-                download_status = main.download_file(
-                                    DOWNLOAD_IMAGE, urlSign, filename.split('/')[-1])
-                    
-                originalImg =  (glob.glob((f'{filename}')))
-                sim, sim_score = model_loader.compare(INPUT_FILE+"signImg.png", filename, 0)
-                image = Image.open(filename)
-                st.image(image, width=300)
-                if sim:
-                    st.success(f"Similar: {sim}")
-                    st.success(f"Similarity: {round(sim_score, 2)} %")
-                else:
-                    st.error(f"Similar: {sim}")
-                    st.error(f"Signature: {round(sim_score, 2)} %")
+            try:
+                col1, col2 = st.columns([0.5, 0.5])
+                if st.button("Compare"):
+                    download_status = main.download_file(
+                                        DOWNLOAD_IMAGE, urlSign, filename.split('/')[-1])
+                        
+                    originalImg =  (glob.glob((f'{filename}')))
+                    sim, sim_score = model_loader.compare(INPUT_FILE+"signImg.png", filename, 0)
+                    image = Image.open(filename)
+                    st.image(image, width=300)
+                    if sim:
+                        st.success(f"Similar: {sim}")
+                        st.success(f"Similarity: {round(sim_score, 2)} %")
+                    else:
+                        st.error(f"Similar: {sim}")
+                        st.error(f"Signature: {round(sim_score, 2)} %")
+            except:
+                st.error("error")
 
     
 
@@ -163,28 +166,32 @@ if choice == "Verify":
         urlSign = st.text_input("Signature Image url")
         filename = main.get_filename(DOWNLOAD_IMAGE, "cheqSign.png")
         if st.button('Verify'):
-            download_status = main.download_file(
-                DOWNLOAD_IMAGE, urlSign, filename.split('/')[-1])
-            if not download_status:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                    detail=filename)
-            originalImg = (glob.glob((f'{filename}')))
-            predScore = model_loader.extractSign("cheqSign.png", False)
-            if predScore == 0 and exFile is not None:
-                st.error("Signature not found in the Image")
-            else:
-                col1, col2 = st.columns([0.5, 0.5])
-                with col1:
-                    image = Image.open(EXTRACT_SIGN+"cheqSign.png")
-                    st.image(image, caption="Extracted Image")
-                with col2:
-                    image = Image.open(filename)
-                    st.image(image, caption="Downloaded Image from URL.")
-                sim, sim_score = model_loader.compare(EXTRACT_SIGN+"cheqSign.png", originalImg[0], False)
-                if sim:
-                    st.success(f"Similar: {sim}")
-                    st.success(f"Similarity: {round(sim_score, 2)} %")
+            try:
+                download_status = main.download_file(
+                    DOWNLOAD_IMAGE, urlSign, filename.split('/')[-1])
+                if not download_status:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                        detail=filename)
+                originalImg = (glob.glob((f'{filename}')))
+                predScore = model_loader.extractSign("cheqSign.png", False)
+                if predScore == 0 and exFile is not None:
+                    st.error("Signature not found in the Image")
                 else:
-                    st.error(f"Similar: {sim}")
-                    st.error(f"Similarity: {round(sim_score,2)} %")
+                    col1, col2 = st.columns([0.5, 0.5])
+                    with col1:
+                        image = Image.open(EXTRACT_SIGN+"cheqSign.png")
+                        st.image(image, caption="Extracted Image")
+                    with col2:
+                        image = Image.open(filename)
+                        st.image(image, caption="Downloaded Image from URL.")
+                    sim, sim_score = model_loader.compare(EXTRACT_SIGN+"cheqSign.png", originalImg[0], False)
+                    if sim:
+                        st.success(f"Similar: {sim}")
+                        st.success(f"Similarity: {round(sim_score, 2)} %")
+                    else:
+                        st.error(f"Similar: {sim}")
+                        st.error(f"Similarity: {round(sim_score,2)} %")
+            except:
+                st.error("error")
+
             
