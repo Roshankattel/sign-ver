@@ -69,17 +69,19 @@ if choice == "Compare":
         if image is not None:
             image = Image.open(image)
             image.save(INPUT_FILE+"signImg.png")
-            st.image(image)
+            st.image(image, width=300)
         urlSign = st.text_input("Signature Image url")
         filename = main.get_filename(DOWNLOAD_IMAGE, "signUrl.png")
         if image:
             col1, col2 = st.columns([0.5, 0.5])
             if st.button("Compare"):
-                download_status= main.download_file(DOWNLOAD_IMAGE, urlSign, filename.split('/'[-1]))
-                if not download_status:
-                    st.error("Invalid Signature image url.")
+                download_status = main.download_file(
+                                    DOWNLOAD_IMAGE, urlSign, filename.split('/')[-1])
+                    
                 originalImg =  (glob.glob((f'{filename}')))
-                sim, sim_score = model_loader.compare(INPUT_SIGN+"signImg.png", DOWNLOAD_IMAGE+filename, 0)
+                sim, sim_score = model_loader.compare(INPUT_FILE+"signImg.png", filename, 0)
+                image = Image.open(filename)
+                st.image(image, width=300)
                 if sim:
                     st.success(f"Similar: {sim}")
                     st.success(f"Similarity: {round(sim_score, 2)} %")
@@ -118,7 +120,7 @@ if choice == "Verify":
                 image.save(INPUT_FILE+"sign1.png")
                 st.markdown(
                     '<p style="text-align: center;">Signature-1</p>', unsafe_allow_html=True)
-                st.image(image, width=300)
+                st.image(image, caption= "Downloaded image from url.", width=300)
 
         with col2:
             file2 = st.file_uploader("Sign", type=['jpg', 'png', 'jpeg', 'tif'])
@@ -141,21 +143,14 @@ if choice == "Verify":
                     if predScore == 0:
                         st.error("Signature not found in the Image")
                     else:
-                        col1, col2 = st.columns([0.5, 0.5])
-                        with col1:
-                            image = Image.open(INPUT_FILE+"sign1.png")
-                            st.image(image, caption="Extracted Sign - 1")
-                        with col2:
-                            image = Image.open(INPUT_FILE+"sign2.png")
-                            st.image(image, caption="Extracted Sign - 2")
-                    sim, sim_score = model_loader.compare(
-                            EXTRACT_SIGN+"sign1.png", INPUT_SIGN+"sign2.png", 0)
-                    if sim:
-                        st.success(f"Similar: {sim}")
-                        st.success(f"Similarity: {round(sim_score,2)} %")
-                    else:
-                        st.error(f"Similar: {sim}")
-                        st.error(f"Similarity: {round(sim_score,2)} %")
+                        sim, sim_score = model_loader.compare(
+                                EXTRACT_SIGN+"sign1.png", INPUT_SIGN+"sign2.png", 0)
+                        if sim:
+                            st.success(f"Similar: {sim}")
+                            st.success(f"Similarity: {round(sim_score,2)} %")
+                        else:
+                            st.error(f"Similar: {sim}")
+                            st.error(f"Similarity: {round(sim_score,2)} %")
 
     if choice2 == "image - url":
         col1, col2, col3 = st.columns([0.5, 0.5, 0.5])

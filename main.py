@@ -20,6 +20,8 @@ import urllib.request
 import os
 import string
 import random
+import streamlit as st
+
 
 INPUT_FILE = "./images/input_files/"
 EXTRACT_SIGN = "./images/extracted_signatures/"
@@ -58,9 +60,10 @@ def download_file(path: str, file_url: str, file_name: str):
     try:
         urllib.request.urlretrieve(file_url, file_path)
     except Exception as exp:
-        raise HTTPException(status_code=400, detail=str(exp))
-    else:
-        return True
+        return st.error("Invalid Image URL.")
+    
+        # raise HTTPException(status_code=400, detail="Invalid Image URL.")
+        
 
 def make_token(n=6):
     choices = f'{string.ascii_uppercase}{string.ascii_lowercase}'
