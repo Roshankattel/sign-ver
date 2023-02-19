@@ -42,7 +42,7 @@ mdurl==0.1.2
 networkx==3.0
 numpy==1.24.2
 oauthlib==3.2.2
-opencv-python==4.7.0.68
+opencv-python-headless
 opt-einsum==3.3.0
 packaging==23.0
 pandas==1.5.3
